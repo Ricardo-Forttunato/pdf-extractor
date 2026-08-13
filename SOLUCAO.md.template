@@ -1,0 +1,82 @@
+# SOLUCAO.md — Template
+
+## Como rodar
+
+```bash
+docker compose up --build
+```
+
+## Stack
+
+- Next.js:
+- TypeScript:
+- MUI:
+- styled-components:
+- Jest:
+- Testing Library:
+- Playwright:
+- OCR:
+- PDF:
+- export:
+
+## Arquitetura
+
+Explique o fluxo:
+
+```text
+HTTP → application → domain → infrastructure
+```
+
+## Processamento
+
+Explique:
+
+- extração de texto;
+- detecção de PDF escaneado;
+- OCR;
+- parser;
+- validação;
+- persistência;
+- processamento assíncrono.
+
+## Segurança
+
+### Upload
+
+Limite:
+
+### Validação
+
+### Concorrência
+
+### Retenção
+
+### Logs
+
+## Testes
+
+Comandos:
+
+```bash
+npm run lint
+npm run typecheck
+npm test
+npm run test:coverage
+npm run test:e2e
+```
+
+## O que ficou de fora
+
+Se houver corte de escopo, explique claramente.
+
+## Decisões
+
+Linke ou resuma ADRs relevantes.
+
+## Deploy
+
+URL:
+
+## Limitações conhecidas
+
+Liste limitações reais.
