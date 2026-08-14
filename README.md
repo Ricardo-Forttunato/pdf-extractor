@@ -33,7 +33,7 @@ Se for cortar, corte **profundidade de um tipo de documento**, não o ciclo. Pre
 
 ## Os documentos
 
-Os PDFs de exemplo estão em `exemplos/`.
+Os PDFs de exemplo estão em `samples/`.
 
 **Cartão de ponto** tem uma linha por dia do período e, em cada linha, as batidas do funcionário em pares entrada/saída.
 
@@ -246,7 +246,7 @@ Não precisa de login nem de design elaborado. Precisa ser honesta sobre o que a
 # Operação
 
 - **`Dockerfile` + `docker-compose.yml`**: `docker compose up` sobe tudo. Este é o requisito duro.
-- **Aplicação publicada**, com URL acessível. Qualquer plataforma gratuita serve, e não tem problema se ela dormir por inatividade — a URL é a demonstração, o `docker compose` é o que garante a avaliação.
+- **Aplicação publicada**, com URL acessível para demonstração da interface. A execução funcional completa é avaliada por `docker compose up`.
 - Configuração por variável de ambiente. Nenhum segredo no repositório.
 - CI mínima (lint + testes) é diferencial.
 
@@ -263,6 +263,8 @@ Você vai colocar na internet um endpoint público que recebe documento com nome
 # Tecnologia
 
 **Linguagem e bibliotecas livres.** Nos interessam fundamentos e raciocínio, não uma stack específica. A única coisa fechada é o contrato HTTP.
+
+Nesta entrega, a URL publicada é um preview visual com dados demonstrativos seguros; upload, OCR, processamento e exportação reais são executados localmente pelo Docker Compose.
 
 # Sobre uso de IA
 
@@ -315,11 +317,10 @@ publicar, tudo bem — avise o recrutador.
 2. URL da aplicação publicada
 3. `SOLUCAO.md` — como rodar, decisões técnicas, o que ficou de fora
 4. `PROCESSO.md` — conforme a seção sobre uso de IA
-5. As planilhas geradas a partir dos PDFs em `exemplos/`
+5. As planilhas geradas a partir dos PDFs em `samples/`
 
 # Como vamos avaliar
 
 Pesos e detalhes em [`INSTRUCOES.md`](INSTRUCOES.md).
 
 Depois da entrega, quem avançar faz uma sessão de ~40 minutos com a gente, ao vivo, estendendo a própria solução para um layout novo — com agente liberado.
-

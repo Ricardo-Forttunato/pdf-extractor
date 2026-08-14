@@ -12,6 +12,14 @@
 | Test runner | |
 | CI | |
 
+## 1.1 Fluxo Git
+
+- Branch:
+- Pull request:
+- Commits relevantes:
+- Verificações antes do merge (`git diff --check`, typecheck, testes, E2E quando aplicável):
+- Estratégia de merge (squash):
+
 ## 2. Loops de engenharia
 
 ### Loop 1
