@@ -108,7 +108,7 @@ correction; `date_raw` and `time_raw` remain visible and read-only.
 - [ ] T032 [US1] Implement literal lifecycle retrieval in `src/app/api/transcricoes/[id]/route.ts`.
 - [ ] T033 [US1] Implement the MUI upload form, document-type selection, local PDF session cache, and safe validation messages in `src/components/upload/upload-form.tsx` and `src/app/page.tsx`.
 - [ ] T034 [US1] Implement polling with 1-to-3-second backoff, cancellation, terminal-state handling, and no manual-refresh dependency in `src/components/upload/transcription-status.tsx`.
-- [ ] T035 [US1] Add README-literal HTTP contract tests for POST, GET lifecycle, PUT replacement verified by subsequent GET, explicit XLSX/CSV/JSON downloads, and `/healthz` in `tests/integration/transcricoes.contract.test.ts`.
+- [ ] T035 [US1] Add CONTEXT-literal HTTP contract tests for POST, GET lifecycle, PUT replacement verified by subsequent GET, explicit XLSX/CSV/JSON downloads, and `/healthz` in `tests/integration/transcricoes.contract.test.ts`.
 
 ### User Story 2 — review, alerts, and correction
 
@@ -159,7 +159,7 @@ architecture for reproducible functional delivery.
 - [ ] T050 Add production build/typecheck scripts for the single Next.js process in `package.json`.
 - [ ] T051 Create a Node Dockerfile with Next standalone output, `tesseract.js`, non-root runtime, and `/healthz` check in `Dockerfile`.
 - [ ] T052 Create one web Compose service with non-secret settings and a health check in `docker-compose.yml`.
-- [ ] T053 Create a safe fixture-backed Vercel UI-preview configuration and document its non-functional limits in `vercel.json` and `README.md`.
+- [ ] T053 Create a safe fixture-backed Vercel UI-preview configuration and document its non-functional limits in `vercel.json` and `SOLUCAO.md`.
 - [ ] T054 Execute the quickstart health, upload-error, scanned-PDF, review/export, and privacy-log checks; record any failures in `specs/001-pdf-transcription-workflow/quickstart.md`.
 
 **Checkpoint**: `docker compose up --build` starts the web service, `/healthz` is 200,
@@ -173,7 +173,7 @@ and the one constitution-required Playwright flow succeeds with deterministic fi
 
 - [ ] T055 Document architecture, Docker start-up, 10 MiB enforcement, OCR fallback, in-memory-job limitations, environment settings, and Vercel UI-preview boundaries in `SOLUCAO.md`.
 - [ ] T056 Document the delivery process, AI/tool usage, ambiguous decisions, failures, rewrites, adversarial checks, and manual verification in `PROCESSO.md`.
-- [ ] T057 Update the final command list, contract references, and generated-output locations for handoff in `README.md`.
+- [ ] T057 Update the final command list, contract references, and generated-output locations for handoff in `SOLUCAO.md`.
 
 **Checkpoint**: A reviewer can run, evaluate, and understand the security/privacy and scope
 tradeoffs without inspecting source code.

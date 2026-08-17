@@ -46,7 +46,7 @@ a fixture-backed visual preview only and does not run OCR, jobs, persistence, or
 valid fixture document completes the submit-to-download journey within 3 minutes; one OCR job runs
 at a time by default to protect CPU and memory.
 
-**Constraints**: The README is the literal source for HTTP methods, paths, fields, and specified
+**Constraints**: `.agents/CONTEXT.md` is the literal source for HTTP methods, paths, fields, and specified
 returns; no PII or document text in logs; fixed 10 MiB (10,485,760 bytes) upload limit; no invented
 values; invalid dates/months are never emitted as valid; monetary output stays in Brazilian string
 form; no alternate public API for source PDF retrieval.
@@ -88,7 +88,7 @@ the supplied fixtures and prioritizes the complete user cycle over generic-layou
    every terminal state.
 7. `PUT /api/transcricoes/:id` is accepted only after completion. It validates the complete edited
    value and replaces the in-memory current value. Its successful status/body are not extended beyond
-   what the README specifies. Export reads only that latest validated value.
+   what `.agents/CONTEXT.md` specifies. Export reads only that latest validated value.
 
 ### Contract-preserving PDF review
 

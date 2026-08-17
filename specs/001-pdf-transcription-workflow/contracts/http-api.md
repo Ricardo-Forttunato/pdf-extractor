@@ -1,6 +1,6 @@
 # HTTP Contract
 
-This document restates the immutable HTTP surface from the README. It does not add alternate
+This document restates the immutable HTTP surface from `.agents/CONTEXT.md`. It does not add alternate
 endpoints, response fields, progress metadata, warnings, source-PDF bytes, or a source-PDF URL.
 
 ## `POST /api/transcricoes`
@@ -55,7 +55,7 @@ file name, filesystem paths, or stack traces.
 the saved transcription atomically only after processing has completed; it does not accept partial
 patches or change `tipo`.
 
-The README does not prescribe a successful PUT status code or response body. Do not treat either as
+`.agents/CONTEXT.md` does not prescribe a successful PUT status code or response body. Do not treat either as
 part of the immutable external contract. Invalid values and attempts to edit before completion fail
 safely and never overwrite a saved value.
 

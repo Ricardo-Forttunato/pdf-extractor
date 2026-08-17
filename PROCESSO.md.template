@@ -117,7 +117,7 @@ Liste áreas de baixa confiança e por quê.
 
 ## 8. O que foi cortado?
 
-O README recomenda cortar profundidade de um tipo, e não o ciclo inteiro, quando o prazo estourar. Documente aqui:
+O `CONTEXT.md` recomenda cortar profundidade de um tipo, e não o ciclo inteiro, quando o prazo estourar. Documente aqui:
 
 - item cortado;
 - motivo;

@@ -20,9 +20,9 @@
 
 ### Hierarquia de fontes
 
-1. `.specify/memory/constitution.md` prevalece como fonte de decisões obrigatórias.
-2. `README.md` define o contrato HTTP externo e os requisitos do desafio.
-3. `.agents/AGENT.md` e `.agents/CONTEXT.md` orientam o desenvolvimento agentic sem contrariar as fontes anteriores.
+1. `.agents/CONTEXT.md` define o contrato HTTP externo e os requisitos do desafio.
+2. `.specify/memory/constitution.md` define as decisões obrigatórias de governança e qualidade.
+3. `.agents/AGENT.md` orienta a conduta de desenvolvimento sem contrariar as fontes anteriores.
 4. `specs/001-pdf-transcription-workflow/` contém os artefatos derivados para implementação.
 
 ### Arquitetura e execução
@@ -38,7 +38,7 @@
 - Limite de upload fixo: 10 MiB (10.485.760 bytes).
 - `?` representa exclusivamente caracteres que o OCR não identificou; não mascara valores lidos como inválidos.
 - `date_raw` e `time_raw` são imutáveis. `time_hhmm` e campos válidos de Holerite podem ser corrigidos.
-- O README é a única fonte de métodos, caminhos, campos e retornos HTTP. Não acrescentar status ou corpo de resposta não especificados, incluindo sucesso do PUT.
+- O `CONTEXT.md` é a única fonte de métodos, caminhos, campos e retornos HTTP. Não acrescentar status ou corpo de resposta não especificados, incluindo sucesso do PUT.
 
 ## 3. Estado atual
 

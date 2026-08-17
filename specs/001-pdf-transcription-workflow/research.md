@@ -50,13 +50,13 @@ required upload-to-review journey and avoids widening the public surface contain
 - Embed the PDF in the status JSON: rejected because it changes the immutable schema and magnifies
   sensitive-data exposure.
 
-## Decision: Define safe behavior for the README's unspecified details
+## Decision: Define safe behavior for unspecified contract details
 
 **Decision**: Apply these stable design rules:
 
 - XLSX, CSV, and JSON are selected explicitly by the documented `formato` query; CSV and JSON
   preserve data but cannot preserve cell styles.
-- PUT success status/body are not specified beyond the README. Invalid replacement data is rejected
+- PUT success status/body are not specified by `.agents/CONTEXT.md`. Invalid replacement data is rejected
   and an edit before completion fails without overwriting the saved value.
 - An unreadable Holerite competence preserves unknown characters as `?` (for example `0?` or `??`)
   and an empty extracted page remains present with `fields: []` and `bases: []`.

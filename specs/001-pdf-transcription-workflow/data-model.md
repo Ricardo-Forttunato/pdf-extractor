@@ -117,13 +117,13 @@ export interface UpdateTranscriptionRequest {
   value: TranscriptionValue;
 }
 
-/** README does not define a successful PUT response shape. */
+/** CONTEXT.md does not define a successful PUT response shape. */
 export type UpdateTranscriptionResponse = unknown;
 
 /** GET /api/transcricoes/:id/planilha accepts ?formato=xlsx|csv|json. */
 export type ExportResponse = Uint8Array | string;
 
-/** README defines only the required 200 status for GET /healthz. */
+/** CONTEXT.md defines only the required 200 status for GET /healthz. */
 export type HealthzResponse = unknown;
 ```
 

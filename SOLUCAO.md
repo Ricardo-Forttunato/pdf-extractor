@@ -36,7 +36,7 @@ de domínio, parsers, avisos e exportadores permanece independente de React e da
 
 ## Processamento
 
-1. `POST /api/transcricoes` valida tipo, PDF e limite de 10 MiB e retorna o identificador conforme o README.
+1. `POST /api/transcricoes` valida tipo, PDF e limite de 10 MiB e retorna o identificador conforme o `CONTEXT.md`.
 2. O job é mantido em memória com estado inicial `processando`.
 3. A extração tenta texto nativo; páginas sem texto utilizável seguem para `tesseract.js`.
 4. Parsers criam o modelo de Cartão de Ponto ou Holerite, sem inventar valores.

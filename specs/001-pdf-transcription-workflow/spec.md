@@ -159,14 +159,13 @@ format, and verify that the correction and required output layout are present.
   MUST be represented by `?`; a readable but impossible date, time, or month MUST remain observed
   and MUST NOT be treated as a valid normalized value.
 - **FR-007**: For Cartão de Ponto, the system MUST preserve page, day, and punch order exactly as
-  printed; retain `date_raw` and `time_raw`; normalize `time_hhmm` only when possible; and assign
-  each punch only `IN` or `OUT` in its source sequence.
+  printed; retain `date_raw` and `time_raw`; normalize `time_hhmm` only when possible; and assign each punch only `IN` or `OUT` in its source sequence.
 - **FR-008**: For Holerite, the system MUST keep `fields` exclusively for earnings and deductions
   from the main table and `bases` exclusively for bases and totals from the separate section.
   `code` and `reference` MUST be empty strings when absent, and every monetary `value` MUST remain
   a Brazilian-real string such as `2.389,77`.
 - **FR-009**: The system MUST preserve the literal HTTP contract and JSON output schemas defined in
-  the README for submission, status retrieval, review updates, downloads, and service health.
+  `.agents/CONTEXT.md` for submission, status retrieval, review updates, downloads, and service health.
 - **FR-010**: The completed-review screen MUST show the source PDF beside a review table whose values
   represent the current transcription. Cartão `date_raw` and `time_raw` MUST be read-only;
   `time_hhmm` and valid Holerite fields remain editable.
