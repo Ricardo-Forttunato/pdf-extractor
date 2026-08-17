@@ -2,9 +2,9 @@
 
 O Quick Filler transforma cartões de ponto e holerites em PDF em planilhas estruturadas para revisão humana. O fluxo é único para os dois tipos de documento: envio do PDF, processamento, revisão lado a lado com o original, correção e download.
 
-> Estado atual: planejamento e documentação concluídos; a aplicação ainda não foi implementada.
+> Estado atual: aplicação implementada e validada localmente com typecheck, Jest, lint e build de produção.
 
-## Funcionalidades previstas
+## Funcionalidades
 
 - Upload de PDF com seleção entre `cartao-ponto` e `holerite`.
 - Extração de texto nativo com OCR como fallback para PDFs digitalizados.
@@ -14,14 +14,18 @@ O Quick Filler transforma cartões de ponto e holerites em PDF em planilhas estr
 
 ## Executar localmente
 
-Após a implementação, a execução funcional será feita com Docker Compose:
+Se desejar mudar parâmetros não sensíveis, copie o arquivo de exemplo; em seguida inicie o ambiente funcional:
 
 ```bash
+cp .env.example .env
 docker compose up --build
 ```
 
 Depois, verifique a disponibilidade em `http://localhost:3000/healthz` e abra
 `http://localhost:3000` no navegador.
+
+Também é possível usar `npm run dev` para desenvolvimento. Execute `npm run typecheck`, `npm test`,
+`npm run lint` e `npm run build` antes de entregar uma alteração.
 
 ## Requisitos e limites
 

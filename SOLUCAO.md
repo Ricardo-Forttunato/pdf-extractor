@@ -1,12 +1,11 @@
 # SOLUCAO.md — Decisões de solução
 
-> Estado: planejamento aprovado; aplicação ainda não implementada.
+> Estado: implementação concluída nesta branch.
 
 ## Como rodar
 
-Quando a implementação estiver concluída:
-
 ```bash
+cp .env.example .env
 docker compose up --build
 ```
 
@@ -63,6 +62,17 @@ Jobs são perdidos se o processo reiniciar; essa é uma limitação deliberada d
 
 A Vercel hospeda apenas uma prévia visual com fixtures seguros para avaliação da interface. Upload,
 OCR, estado de jobs, revisão real e exportação são avaliados exclusivamente via Docker Compose.
+
+## Configuração e verificações
+
+`MAX_UPLOAD_BYTES` é fixado por padrão em 10.485.760, `JOB_RETENTION_HOURS` em 24,
+`OCR_TIMEOUT_MS` limita cada tentativa de OCR e `MAX_CONCURRENT_OCR_JOBS` mantém o processamento
+em uma fila de uma tarefa. Nenhuma dessas configurações contém segredos.
+
+Foram executados `npm run typecheck`, `npm test`, `npm run lint`, `npm run build` e a construção
+Docker, cujo `/healthz` retornou 200. A suíte cobre parsers, validação, avisos, exportadores/XLSX e
+contrato de rotas. O Playwright está configurado, porém sua execução depende da instalação da
+biblioteca de sistema `libnspr4.so` (o ambiente atual não possui privilégio administrativo).
 
 ## Limitações conhecidas
 

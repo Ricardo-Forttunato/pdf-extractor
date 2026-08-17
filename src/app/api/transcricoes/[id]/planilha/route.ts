@@ -1,0 +1,9 @@
+import { exportFormatSchema } from "@/schemas/http";
+import { transcriptionStore } from "@/infrastructure/storage/in-memory-transcription-store";
+import { cartaoExportModel } from "@/lib/exporters/cartao-export-model";
+import { holeriteExportModel } from "@/lib/exporters/holerite-export-model";
+import { toCsv } from "@/infrastructure/export/csv-writer";
+import { toJson } from "@/infrastructure/export/json-writer";
+import { toXlsx } from "@/infrastructure/export/xlsx-writer";
+export const runtime = "nodejs";
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) { const { id } = await params; const job = transcriptionStore.get(id); const parsed = exportFormatSchema.safeParse(new URL(request.url).searchParams.get("formato")); if (!job || job.status !== "concluido" || !job.value) return Response.json({ erro: "A transcrição não está disponível para exportação." }, { status: 404 }); if (!parsed.success) return Response.json({ erro: "Formato de exportação inválido." }, { status: 400 }); const format = parsed.data; const cartao = job.tipo === "cartao-ponto"; const output = format === "json" ? toJson(job.value) : format === "csv" ? toCsv(cartao ? cartaoExportModel(job.value as import("@/domain/transcription/model").CartaoPontoValue) : holeriteExportModel(job.value as import("@/domain/transcription/model").HoleriteValue)) : await toXlsx(job.value); const body = typeof output === "string" ? output : new Uint8Array(output); const contentType = format === "xlsx" ? "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" : format === "csv" ? "text/csv; charset=utf-8" : "application/json; charset=utf-8"; return new Response(body, { headers: { "Content-Type": contentType, "Content-Disposition": `attachment; filename=transcricao.${format}` } }); }

@@ -1,0 +1,2 @@
+import { parseHolerite } from "@/lib/parsers/holerite-parser";
+test("separa verbas de bases", () => { const page = parseHolerite(["Competência 01/2020\n0010 Salário Base 220,00 2.389,77\nBase INSS 2.545,68\nValor Líquido 2.000,00"]).pages[0]!; expect(page.fields).toEqual([{ code: "0010", label: "Salário Base", reference: "220,00", value: "2.389,77" }]); expect(page.bases.map((base) => base.label)).toEqual(["Base INSS", "Valor Líquido"]); });

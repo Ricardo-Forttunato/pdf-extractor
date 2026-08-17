@@ -65,6 +65,16 @@ Expected result: the eight strategic checks described in [plan.md](./plan.md) pa
 check is the one deterministic upload → processing → split-screen review → edit → download journey;
 it must not depend on a cloud OCR service or real PII.
 
+## Registro de validação — 2026-08-17
+
+- `npm run typecheck`, `npm test`, `npm run lint` e `npm run build`: aprovados.
+- `docker compose build` e `docker compose up`: aprovados; `GET /healthz` retornou `200` no
+  container temporário.
+- Playwright: a configuração e o navegador foram instalados, mas a execução foi bloqueada antes do
+  teste pela ausência de `libnspr4.so`. `npx playwright install-deps chromium` requer senha de
+  administrador neste ambiente. É necessário instalar as dependências de sistema do Playwright e
+  executar `npm run test:e2e` em um ambiente com privilégios para fechar esse gate.
+
 ## Vercel UI preview
 
 The published Vercel URL is only for reviewing the interface with safe fixture data. It does not run

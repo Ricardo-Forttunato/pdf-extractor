@@ -10,7 +10,7 @@
 
 ## 1.1 Fluxo Git
 
-- Branch: a definir no início da implementação.
+- Branch: `feature/001-pdf-transcription-workflow`.
 - Pull request: uma por branch curta.
 - Commits relevantes: seguir Conventional Commits (`feat:`, `fix:`, `docs:`, `test:`, `refactor:`, `chore:`).
 - Verificações antes do merge: `git diff --check`, typecheck, testes relevantes e E2E quando o fluxo crítico for afetado.
@@ -40,6 +40,18 @@
 - `date_raw` e `time_raw` são imutáveis. `time_hhmm` e campos válidos de Holerite podem ser corrigidos.
 - O `CONTEXT.md` é a única fonte de métodos, caminhos, campos e retornos HTTP. Não acrescentar status ou corpo de resposta não especificados, incluindo sucesso do PUT.
 
-## 3. Estado atual
+## 3. Implementação e verificações
 
-Esta etapa consolidou regras e artefatos de planejamento. A implementação da aplicação, os testes e o deploy funcional ainda não foram iniciados.
+- Estruturado o App Router, MUI Core v9, TypeScript estrito, Zod, repositório em memória e rotas
+  contratuais sem extensão do HTTP público.
+- Implementados extração nativa por página, renderização em memória e fallback Tesseract.js; logs
+  contêm apenas o ID opaco e o evento operacional.
+- Implementados parsers, validações de fidelidade, avisos derivados, revisão com PDF local e
+  exportação XLSX/CSV/JSON a partir da última correção válida.
+- Validações executadas: `npm run typecheck`, `npm test`, `npm run lint` e `npm run build`.
+- A imagem foi validada por `docker compose build` e `docker compose up`; o health check retornou
+  `200` em `/healthz` antes da remoção do ambiente temporário.
+- O Playwright foi configurado e o Chromium baixado. A execução não iniciou por ausência de
+  `libnspr4.so`; a tentativa de `playwright install-deps chromium` exigiu senha de administrador.
+- A instalação de dependências exigiu acesso ao registro npm. O relatório de dependências informa
+  vulnerabilidades transitivas; nenhuma atualização automática ou quebra de versão foi aplicada.
