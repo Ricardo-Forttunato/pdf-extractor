@@ -10,7 +10,7 @@ async function run(id: string) {
   const job = transcriptionStore.get(id); if (!job) return;
   active = true; logger.event("job_started", id);
   try { const pages = await extractPages(job.sourcePdf); const parsed: TranscriptionValue = job.tipo === "cartao-ponto" ? parseCartaoPonto(pages) : parseHolerite(pages); transcriptionStore.complete(id, validateTranscription(job.tipo, parsed)); logger.event("job_completed", id); }
-  catch { transcriptionStore.fail(id, "Não foi possível processar o documento com segurança."); logger.event("job_failed", id); }
+  catch (cause) { transcriptionStore.fail(id, "Não foi possível processar o documento com segurança."); logger.event("job_failed", id, cause); }
   finally { active = false; const next = pending.shift(); if (next) void run(next); }
 }
 export function scheduleTranscription(id: string) { if (active) pending.push(id); else void run(id); }
