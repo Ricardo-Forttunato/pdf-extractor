@@ -12,6 +12,7 @@ Em caso de divergência, não altere o contrato ou requisito de produto por infe
 
 - Inspecione o código, os documentos relacionados e o estado do Git antes de mudanças relevantes. Preserve alterações preexistentes que não façam parte da tarefa.
 - Faça mudanças pequenas, coesas e rastreáveis. Não amplie o escopo sem necessidade; registre cortes ou decisões de escopo em `SOLUCAO.md`.
+- Mantenha `README.md` como a documentação oficial de apresentação e uso da aplicação; `SOLUCAO.md` registra decisões técnicas e `PROCESSO.md`, o histórico de desenvolvimento. Nenhum deles substitui o `CONTEXT.md` como fonte de requisitos.
 - Mantenha as camadas de domínio, aplicação, infraestrutura, rotas e interface separadas. Não esconda regra de negócio ou validação de contrato em componentes visuais.
 - Use TypeScript estrito e validação executável nas fronteiras de entrada e saída. Prefira operações puras para regras de domínio, parsing, alertas e exportação.
 - Não invente comportamentos, campos, endpoints, status HTTP ou formatos de resposta ausentes do contexto. Quando o contexto não definir um detalhe, escolha a alternativa mais segura e documente a decisão em `SOLUCAO.md`.

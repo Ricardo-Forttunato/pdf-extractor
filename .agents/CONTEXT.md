@@ -2,6 +2,8 @@
 
 Este arquivo é a fonte de verdade para o desenvolvimento do Quick Filler. Ele define o desafio, o produto, o contrato HTTP e os requisitos verificáveis. Os documentos em `specs/001-pdf-transcription-workflow/` são artefatos derivados e devem ser atualizados quando este contexto mudar.
 
+`README.md` é a documentação oficial de apresentação e uso da aplicação. `SOLUCAO.md` registra as decisões técnicas da entrega, e `PROCESSO.md` registra o processo de desenvolvimento. Esses documentos devem permanecer coerentes com este contexto, mas não o substituem como fonte de requisitos.
+
 ## Visão do produto e escopo
 
 O Quick Filler transcreve documentos trabalhistas em PDF — cartões de ponto e holerites — para planilhas estruturadas (`.xlsx`, `.csv` e `.json`). O produto precisa completar o ciclo único de envio, processamento, revisão e download para ambos os tipos. Os tipos compartilham o mesmo pipeline; somente a extração e o formato de planilha variam.

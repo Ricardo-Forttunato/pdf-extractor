@@ -167,13 +167,13 @@ and the one constitution-required Playwright flow succeeds with deterministic fi
 
 ---
 
-## Phase 7: Documentação Obrigatória (SOLUCAO.md e PROCESSO.md)
+## Phase 7: Documentação de entrega (README.md, SOLUCAO.md e PROCESSO.md)
 
 **Purpose**: Publish the operational, privacy, and engineering evidence required for delivery.
 
 - [ ] T055 Document architecture, Docker start-up, 10 MiB enforcement, OCR fallback, in-memory-job limitations, environment settings, and Vercel UI-preview boundaries in `SOLUCAO.md`.
 - [ ] T056 Document the delivery process, AI/tool usage, ambiguous decisions, failures, rewrites, adversarial checks, and manual verification in `PROCESSO.md`.
-- [ ] T057 Update the final command list, contract references, and generated-output locations for handoff in `SOLUCAO.md`.
+- [ ] T057 Create and maintain the official application `README.md` with project overview, prerequisites, run commands, usage, operational limits, and links to `CONTEXT.md`, `SOLUCAO.md`, and `PROCESSO.md`.
 
 **Checkpoint**: A reviewer can run, evaluate, and understand the security/privacy and scope
 tradeoffs without inspecting source code.
