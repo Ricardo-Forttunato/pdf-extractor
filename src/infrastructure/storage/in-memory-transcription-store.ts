@@ -10,4 +10,8 @@ export class InMemoryTranscriptionStore {
   response(id: string): GetTranscriptionResponse | undefined { const job = this.get(id); if (!job) return undefined; return { id: job.id, tipo: job.tipo, status: job.status, erro: job.erro, value: job.value } as GetTranscriptionResponse; }
   clearExpired() { for (const id of this.jobs.keys()) this.get(id); }
 }
-export const transcriptionStore = new InMemoryTranscriptionStore();
+// Next reloads route modules independently in development. Keep the ephemeral
+// store on the process global so POST, polling GET and PUT share the same jobs.
+const globalStore = globalThis as typeof globalThis & { transcriptionStore?: InMemoryTranscriptionStore };
+export const transcriptionStore = globalStore.transcriptionStore ?? new InMemoryTranscriptionStore();
+globalStore.transcriptionStore = transcriptionStore;

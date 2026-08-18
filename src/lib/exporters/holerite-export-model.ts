@@ -1,6 +1,9 @@
 import type { HoleriteValue } from "@/domain/transcription/model";
 import type { TabularExport } from "@/lib/exporters/cartao-export-model";
 export function holeriteExportModel(value: HoleriteValue): TabularExport {
-  const headers = ["Pág.", "Mês", "Ano"]; for (const page of value.pages) for (const field of page.fields) if (!headers.includes(field.label)) headers.push(field.label);
-  return { headers, rows: value.pages.map((page) => { const row: Record<string, string> = { "Pág.": String(page.page), "Mês": page.month, "Ano": page.year }; for (const field of page.fields) row[field.label] = field.value; return row; }) };
+  const headers = ["Pág.", "Mês", "Ano", "Tipo", "Código", "Descrição", "Referência", "Valor"];
+  return { headers, rows: value.pages.flatMap((page) => [
+    ...page.fields.map((field) => ({ "Pág.": String(page.page), "Mês": page.month, "Ano": page.year, Tipo: "Verba", "Código": field.code, "Descrição": field.label, "Referência": field.reference, Valor: field.value })),
+    ...page.bases.map((base) => ({ "Pág.": String(page.page), "Mês": page.month, "Ano": page.year, Tipo: "Base de cálculo", "Código": "", "Descrição": base.label, "Referência": "", Valor: base.value }))
+  ]) };
 }
