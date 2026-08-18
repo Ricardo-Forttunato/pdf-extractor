@@ -7,7 +7,7 @@ export class InMemoryTranscriptionStore {
   complete(id: string, value: TranscriptionValue) { const job = this.get(id); if (!job || job.status !== "processando") return; job.status = "concluido"; job.value = value; job.erro = null; job.updatedAt = new Date(); }
   markManualReview(id: string, erro: string) { const job = this.get(id); if (!job || job.status !== "processando") return; job.status = "ILEGIVEL_PARA_REVISAO_MANUAL"; job.value = null; job.erro = erro; job.sourcePdf = new Uint8Array(); job.updatedAt = new Date(); }
   fail(id: string, erro: string) { const job = this.get(id); if (!job || job.status !== "processando") return; job.status = "erro"; job.value = null; job.erro = erro; job.sourcePdf = new Uint8Array(); job.updatedAt = new Date(); }
-  replace(id: string, value: TranscriptionValue) { const job = this.get(id); if (!job || job.status !== "concluido") throw new Error("A transcrição ainda não está disponível para edição."); job.value = value; job.updatedAt = new Date(); }
+  replace(id: string, value: TranscriptionValue) { const job = this.get(id); if (!job || !["concluido", "ILEGIVEL_PARA_REVISAO_MANUAL"].includes(job.status)) throw new Error("A transcrição ainda não está disponível para edição."); job.status = "concluido"; job.value = value; job.erro = null; job.updatedAt = new Date(); }
   response(id: string): GetTranscriptionResponse | undefined { const job = this.get(id); if (!job) return undefined; return { id: job.id, tipo: job.tipo, status: job.status, erro: job.erro, value: job.value } as GetTranscriptionResponse; }
   clearExpired() { for (const id of this.jobs.keys()) this.get(id); }
 }

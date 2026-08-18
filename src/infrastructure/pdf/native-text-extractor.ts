@@ -1,4 +1,4 @@
-import { loadPdf } from "@/infrastructure/pdf/pdfjs";
+import { loadPdf, type PdfPage } from "@/infrastructure/pdf/pdfjs";
 
 const rowTolerance = 2;
 const gapForSpace = 1;
@@ -34,14 +34,18 @@ function toLines(items: PositionedText[]) {
     .filter(Boolean);
 }
 
+export async function extractNativePageText(page: PdfPage): Promise<string> {
+  const content = await page.getTextContent();
+  const items = content.items
+    .map((item) => ({ str: item.str?.trim() ?? "", x: item.transform?.[4] ?? 0, y: item.transform?.[5] ?? 0, width: item.width ?? 0 }))
+    .filter((item) => item.str);
+  return toLines(items).join("\n");
+}
+
 export async function extractNativeText(bytes: Uint8Array): Promise<string[]> {
   const pdf = await loadPdf(bytes); const pages: string[] = [];
   for (let number = 1; number <= pdf.numPages; number += 1) {
-    const content = await (await pdf.getPage(number)).getTextContent();
-    const items = content.items
-      .map((item) => ({ str: item.str?.trim() ?? "", x: item.transform?.[4] ?? 0, y: item.transform?.[5] ?? 0, width: item.width ?? 0 }))
-      .filter((item) => item.str);
-    pages.push(toLines(items).join("\n"));
+    pages.push(await extractNativePageText(await pdf.getPage(number)));
   }
   return pages;
 }

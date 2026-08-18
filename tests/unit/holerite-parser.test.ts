@@ -49,3 +49,43 @@ test("marca divergência de cálculo sem derrubar a extração", () => {
     divergence_calculo: true
   });
 });
+
+test("extrai fields e bases a partir de linhas processadas por OCR", () => {
+  const value = parseHolerite([{
+    pageNumber: 1,
+    kind: "scanned",
+    text: [
+      "REFERENCIA 08/2026",
+      "0010 SALARIO BASE 220,00 2.389,77",
+      "9001 INSS 389,77",
+      "TOTAL PROVENTOS 2.389,77",
+      "TOTAL DESCONTOS 389,77",
+      "LIQUIDO A RECEBER 2.000,00"
+    ].join("\n"),
+    lines: [
+      "REFERENCIA 08/2026",
+      "0010 SALARIO BASE 220,00 2.389,77",
+      "9001 INSS 389,77",
+      "TOTAL PROVENTOS 2.389,77",
+      "TOTAL DESCONTOS 389,77",
+      "LIQUIDO A RECEBER 2.000,00"
+    ]
+  }]);
+
+  expect(value.pages[0]).toEqual({
+    page: 1,
+    month: "08",
+    year: "2026",
+    reference: "08/2026",
+    divergence_calculo: false,
+    fields: [
+      { code: "0010", label: "SALARIO BASE", reference: "220,00", value: "2.389,77", kind: "PROVENTO" },
+      { code: "9001", label: "INSS", reference: "", value: "389,77", kind: "DESCONTO" }
+    ],
+    bases: [
+      { label: "TOTAL PROVENTOS", value: "2.389,77" },
+      { label: "TOTAL DESCONTOS", value: "389,77" },
+      { label: "LIQUIDO A RECEBER", value: "2.000,00" }
+    ]
+  });
+});
