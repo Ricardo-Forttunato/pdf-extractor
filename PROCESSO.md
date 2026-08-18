@@ -48,6 +48,27 @@
   contêm apenas o ID opaco e o evento operacional.
 - Implementados parsers, validações de fidelidade, avisos derivados, revisão com PDF local e
   exportação XLSX/CSV/JSON a partir da última correção válida.
+- No commit `79a9863` foi corrigido um defeito de extração/parsing nos samples `payroll-01.pdf` e
+  `time-card-01.pdf`: o texto nativo estava sendo achatado com perda de estrutura, o OCR era
+  acionado cedo demais e isso contaminava a entrada dos parsers com ruído e quebras de agrupamento.
+- Causa raiz identificada:
+  - `getTextContent()` retornava os fragmentos corretos, mas o código os unia com `join(" ")`,
+    misturando colunas e removendo a noção de linha;
+  - o limiar de fallback era baixo demais (`>= 3` caracteres úteis), permitindo OCR em páginas já
+    legíveis por texto vetorial;
+  - os parsers anteriores dependiam de linhas simples e não suportavam bem layout multi-coluna do
+    holerite nem múltiplas linhas por dia no cartão.
+- Correção aplicada no mesmo commit:
+  - reconstrução de linhas por coordenadas `x/y` no extrator nativo;
+  - aumento do limiar de texto utilizável para 50 caracteres antes de acionar Tesseract;
+  - refatoração do parser de holerite para separar `fields` e `bases` em layout multi-coluna e por
+    competência;
+  - refatoração do parser de cartão para agrupar repetições do mesmo dia, descartar a jornada fixa
+    e retornar dias sem batidas com `punches: []`.
+- Verificação específica da correção:
+  - adicionados/ajustados testes em `tests/integration/extraction-pipeline.test.ts`,
+    `tests/unit/holerite-parser.test.ts` e `tests/unit/cartao-parser.test.ts`;
+  - o conjunto completo `npm run typecheck`, `npm test` e `npm run lint` passou após a refatoração.
 - Validações executadas: `npm run typecheck`, `npm test`, `npm run lint` e `npm run build`.
 - A imagem foi validada por `docker compose build` e `docker compose up`; o health check retornou
   `200` em `/healthz` antes da remoção do ambiente temporário.
