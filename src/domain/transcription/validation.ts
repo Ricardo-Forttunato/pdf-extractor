@@ -22,6 +22,7 @@ export function validateTranscription(type: DocumentType, value: TranscriptionVa
     }
   } else for (const page of (parsed as import("@/domain/transcription/model").HoleriteValue).pages) {
     if (!page.month.includes("?") && !isKnownValidMonth(page.month)) throw new Error("O mês é inválido.");
+    if (!page.reference.trim()) throw new Error("A referência do holerite é obrigatória.");
     for (const entry of [...page.fields, ...page.bases]) if (!isObservedMoney(entry.value)) throw new Error("Um valor monetário é inválido.");
   }
   return parsed as TranscriptionValue;

@@ -28,7 +28,7 @@
 ### Arquitetura e execução
 
 - Next.js App Router, TypeScript estrito e MUI Core v9 com tabelas nativas; não usar `@mui/x-data-grid`.
-- OCR em Node.js com `pdfjs-dist` para texto nativo e `tesseract.js` como fallback.
+- Conversão de PDF em imagem por página com `pdfjs-dist` + canvas e extração estruturada via Vision.
 - Jobs e resultados ficam em memória no processo, sem SQLite, worker separado, Tesseract CLI ou Poppler.
 - `docker compose up` é o ambiente oficial para execução e avaliação funcional.
 - Vercel é somente preview visual com fixtures seguros; não executa upload, OCR, processamento ou exportação real.
@@ -48,6 +48,24 @@
   contêm apenas o ID opaco e o evento operacional.
 - Implementados parsers, validações de fidelidade, avisos derivados, revisão com PDF local e
   exportação XLSX/CSV/JSON a partir da última correção válida.
+- Na refatoração posterior para os documentos escaneados/manuscritos (`payroll-02/03/04`,
+  `time-card-02/03/04`), o pipeline textual anterior foi substituído por um fluxo unificado de
+  renderização para imagem e extração via Vision com schema estruturado.
+- Ajustes centrais dessa refatoração:
+  - todo PDF passou a ser iterado página por página como imagem, inclusive em arquivos multipágina;
+  - holerite passou a extrair `reference`, totais e itens com `kind` (`PROVENTO`/`DESCONTO`);
+  - foi adicionada validação matemática com `divergence_calculo` sem falha terminal;
+  - cartões de ponto ilegíveis, especialmente manuscritos, passaram a encerrar como
+    `ILEGIVEL_PARA_REVISAO_MANUAL`.
+- Risco/controlador principal observado:
+  - o contrato público original não previa status terminal intermediário para ilegibilidade;
+  - o modelo de domínio foi expandido para suportar esse caso sem quebrar polling, store, revisão,
+    exportação e validação.
+- Verificação específica dessa refatoração:
+  - teste unitário do adapter de Vision;
+  - atualização dos testes de parser/exporter/warnings;
+  - atualização do contrato de rota para status `ILEGIVEL_PARA_REVISAO_MANUAL`;
+  - `npm run typecheck`, `npm test` e `npm run lint` executados com sucesso após a alteração.
 - No commit `79a9863` foi corrigido um defeito de extração/parsing nos samples `payroll-01.pdf` e
   `time-card-01.pdf`: o texto nativo estava sendo achatado com perda de estrutura, o OCR era
   acionado cedo demais e isso contaminava a entrada dos parsers com ruído e quebras de agrupamento.
