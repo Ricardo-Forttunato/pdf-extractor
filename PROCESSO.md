@@ -1,45 +1,52 @@
 # PROCESSO.md — Registro de desenvolvimento
 
-## 1. Ferramentas utilizadas
+## Ferramentas utilizadas
 
-| Ferramenta | Para quê |
+| Ferramenta | Finalidade |
 |---|---|
-| Codex / agentes | Análise de requisitos, consolidação de decisões e documentação agentic. |
-| Git | Controle de versão, inspeção de alterações e validação de diffs. |
-| GitHub SpecKit | Geração e manutenção dos artefatos de especificação. |
+| Codex / agentes | Análise de requisitos, implementação assistida, documentação e revisão |
+| Git | Controle de versão, inspeção de histórico e validação de alterações |
+| GitHub SpecKit | Geração e manutenção dos artefatos de especificação |
 
-## 1.1 Fluxo Git
+## Fluxo de trabalho
 
-- Branch: a definir no início da implementação.
-- Pull request: uma por branch curta.
-- Commits relevantes: seguir Conventional Commits (`feat:`, `fix:`, `docs:`, `test:`, `refactor:`, `chore:`).
-- Verificações antes do merge: `git diff --check`, typecheck, testes relevantes e E2E quando o fluxo crítico for afetado.
-- Estratégia de merge: squash merge em `main`.
+- Branch principal do ciclo: `feature/001-pdf-transcription-workflow`
+- Estratégia de integração: branch curta com squash merge em `main`
+- Convenção de commits: `feat:`, `fix:`, `docs:`, `test:`, `refactor:`, `chore:`
+- Verificações antes do fechamento: `git diff --check`, typecheck, testes relevantes e E2E quando aplicável
 
-## 2. Decisões tomadas antes da implementação
+## Premissas adotadas antes da implementação
 
-### Hierarquia de fontes
+- `CONTEXT.md` é a fonte de verdade para contrato HTTP e regras do desafio.
+- O ambiente oficial de avaliação é `docker compose up`.
+- A solução deveria evitar persistência de estado fora do processo.
+- O pipeline precisaria atender PDFs nativos e escaneados sem depender de serviços externos como caminho principal.
+- `?` deveria representar apenas incerteza real de leitura, não mascarar dado claramente identificado.
 
-1. `.agents/CONTEXT.md` define o contrato HTTP externo e os requisitos do desafio.
-2. `.specify/memory/constitution.md` define as decisões obrigatórias de governança e qualidade.
-3. `.agents/AGENT.md` orienta a conduta de desenvolvimento sem contrariar as fontes anteriores.
-4. `specs/001-pdf-transcription-workflow/` contém os artefatos derivados para implementação.
+## Linha de desenvolvimento
 
-### Arquitetura e execução
+1. Estruturação inicial do projeto com Next.js, TypeScript estrito, MUI Core e rotas contratuais.
+2. Implementação do fluxo base de upload, polling, revisão e exportação.
+3. Correção do empacotamento de runtime OCR no Docker para execução fora do ambiente de desenvolvimento.
+4. Correção do defeito de extração/parsing em PDFs nativos:
+   - o texto estava sendo achatado
+   - o OCR era acionado cedo demais
+   - os parsers recebiam entrada degradada
+5. Tentativa experimental com Vision/Gemini para casos mais difíceis; a abordagem foi descartada como caminho principal por instabilidade operacional e estrutural.
+6. Refatoração do pipeline para processamento por página com classificação `native`/`mixed`/`scanned`, OCR local de fallback e política explícita de revisão manual.
+7. Consolidação do comportamento terminal de revisão manual para permitir edição e exportação após correção humana.
 
-- Next.js App Router, TypeScript estrito e MUI Core v9 com tabelas nativas; não usar `@mui/x-data-grid`.
-- OCR em Node.js com `pdfjs-dist` para texto nativo e `tesseract.js` como fallback.
-- Jobs e resultados ficam em memória no processo, sem SQLite, worker separado, Tesseract CLI ou Poppler.
-- `docker compose up` é o ambiente oficial para execução e avaliação funcional.
-- Vercel é somente preview visual com fixtures seguros; não executa upload, OCR, processamento ou exportação real.
+## Resultado funcional observado
 
-### Fidelidade e contrato
+- `payroll-01`, `payroll-02`, `payroll-03`: fechamento automático esperado
+- `time-card-01`, `time-card-02`, `time-card-03`: fechamento automático esperado
+- `payroll-04` e `time-card-04`: revisão manual terminal esperada
 
-- Limite de upload fixo: 10 MiB (10.485.760 bytes).
-- `?` representa exclusivamente caracteres que o OCR não identificou; não mascara valores lidos como inválidos.
-- `date_raw` e `time_raw` são imutáveis. `time_hhmm` e campos válidos de Holerite podem ser corrigidos.
-- O `CONTEXT.md` é a única fonte de métodos, caminhos, campos e retornos HTTP. Não acrescentar status ou corpo de resposta não especificados, incluindo sucesso do PUT.
+## Verificações executadas
 
-## 3. Estado atual
+- `npm run typecheck`
+- `npm test`
+- `npm run build`
+- `npm run test:e2e`
 
-Esta etapa consolidou regras e artefatos de planejamento. A implementação da aplicação, os testes e o deploy funcional ainda não foram iniciados.
+A cobertura atual valida contrato HTTP, pipeline documental, parsers, revisão manual, exportação, rota de saúde e smoke test E2E da tela inicial.
