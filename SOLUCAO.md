@@ -73,6 +73,8 @@ Uma única aplicação Next.js executa UI, rotas HTTP e processamento em memóri
 - `payroll-01`, `payroll-02`, `payroll-03`: fechamento automático esperado.
 - `time-card-01`, `time-card-02`, `time-card-03`: fechamento automático esperado.
 - `payroll-04` e `time-card-04`: tendência a revisão manual terminal por baixa confiabilidade; isso é deliberado.
+- Gerado XLSX das amostras payroll-01, payroll-02, payroll-03, time-card-01, time-card-02 e time-card-03 com sucesso.
+- Gerado XLSX das amostras payroll-04 e time-card-04 não foi gerado, OCR falhou ao reconhecer os caracteres dos arquivos que apresentavam ruído.
 
 ## Configuração e verificações
 
