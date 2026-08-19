@@ -1,6 +1,6 @@
 # SOLUCAO.md — Decisões de solução
 
-> Estado: implementação concluída nesta branch, com pipeline local consolidado para PDFs nativos e escaneados e política terminal de revisão manual para casos não confiáveis.
+> Estado: implementação concluída nesta branch, com pipeline local para PDFs nativos e escaneados, revisão manual terminal para casos não confiáveis e validações automatizadas executadas com sucesso.
 
 ## Como rodar
 
@@ -9,173 +9,121 @@ cp .env.example .env
 docker compose up --build
 ```
 
-Esse é o modo de avaliação funcional da aplicação.
+Esse é o modo oficial de avaliação funcional.
 
 ## Stack
 
-- Next.js App Router;
-- TypeScript com tipagem estrita;
-- MUI Core v9 com Emotion e tabelas nativas (`Table`/`TextField`);
-- `pdfjs-dist` e `@napi-rs/canvas` para leitura de texto nativo e renderização de PDF em imagem página por página;
-- Tesseract.js como OCR local de fallback para páginas escaneadas ou mistas;
-- ExcelJS para XLSX;
-- Jest + React Testing Library e Playwright;
-- Docker e Docker Compose.
+- Next.js App Router
+- TypeScript estrito
+- MUI Core v9 com tabelas nativas
+- `pdfjs-dist` e `@napi-rs/canvas` para texto nativo e renderização de páginas
+- Tesseract.js como OCR local de fallback
+- ExcelJS para exportação XLSX
+- Jest e Playwright
+- Docker e Docker Compose
 
-Não serão usados `@mui/x-data-grid`, SQLite, worker separado, Tesseract CLI ou Poppler como dependência operacional do fluxo principal.
+Ficam fora do escopo: `@mui/x-data-grid`, SQLite, worker separado, Tesseract CLI e Poppler como dependência obrigatória do fluxo principal.
 
 ## Arquitetura
 
 ```text
-HTTP/Interface → application → domain → infrastructure
+HTTP/Interface -> application -> domain -> infrastructure
 ```
 
-Uma única aplicação Next.js executa UI, rotas HTTP e processamento assíncrono em memória. O modelo
-de domínio, parsers, avisos e exportadores permanece independente de React e das rotas.
+Uma única aplicação Next.js executa UI, rotas HTTP e processamento em memória. Parsers, regras de validação, warnings e exportadores permanecem desacoplados da interface.
 
-## Processamento
+## Fluxo de processamento
 
-1. `POST /api/transcricoes` valida tipo, PDF e limite de 10 MiB e retorna o identificador conforme o `CONTEXT.md`.
-2. O job é mantido em memória com estado inicial `processando`.
-3. Cada página do PDF passa por dois caminhos em paralelo: extração de texto nativo com `getTextContent()` e renderização da imagem da página.
-4. As páginas são classificadas como `native`, `mixed` ou `scanned` conforme a quantidade de texto útil detectada.
-5. Páginas `native` seguem com o texto vetorial normalizado; páginas `mixed` e `scanned` passam por OCR local e, no caso `mixed`, o pipeline escolhe a fonte com maior densidade de texto útil.
-6. O resultado textual por página é normalizado e enviado aos parsers por tipo:
-   - holerite: competência, verbas (`fields[]`), bases/totais (`bases[]`) e flag `divergencia_calculo`;
-   - cartão de ponto: páginas, dias e `punches[]`, com aglutinação de múltiplas linhas do mesmo dia.
-7. Uma política de confiabilidade decide o fechamento automático:
-   - holerites escaneados exigem competência válida, bases obrigatórias e quantidade mínima de verbas por página;
-   - cartões escaneados exigem dias e batidas em quantidade mínima distribuída pelas páginas.
-8. Se a estrutura não for confiável, o job termina como `ILEGIVEL_PARA_REVISAO_MANUAL`; se for confiável, segue para `concluido`.
-9. O resultado fica disponível para polling, revisão e exportação durante a vida do processo.
+1. `POST /api/transcricoes` valida tipo, limite de 10 MiB e integridade do PDF.
+2. O job nasce em memória com status `processando`.
+3. Cada página sempre gera dois artefatos: texto nativo, quando existir, e imagem renderizada.
+4. A página é classificada como `native`, `mixed` ou `scanned`.
+5. O pipeline privilegia texto nativo; OCR local entra como fallback para páginas mistas ou escaneadas.
+6. O texto normalizado segue para parsers específicos:
+   - `holerite`: competência, verbas, bases/totais e `divergencia_calculo`
+   - `cartao-ponto`: páginas, dias e `punches[]`, com aglutinação de linhas do mesmo dia
+7. Uma política de confiabilidade decide entre `concluido` e `ILEGIVEL_PARA_REVISAO_MANUAL`.
+8. O resultado pode ser consultado, corrigido e exportado enquanto o processo estiver ativo.
 
-Jobs são perdidos se o processo reiniciar; essa é uma limitação deliberada do escopo de demonstração.
+## Decisões centrais
 
-## Refatoração aplicada para documentos escaneados e manuscritos
+- O sistema tenta preservar o observado; quando a leitura automática não é confiável, prefere revisão manual a inventar valores.
+- `date_raw` e `time_raw` preservam a observação original; `time_hhmm` e campos válidos de holerite são corrigíveis.
+- `warnings` são derivados em runtime e não persistidos no JSON final.
+- A exportação usa a última versão válida salva pelo operador.
+- O estado é propositalmente efêmero: reinicializar o processo elimina jobs e resultados.
 
-### Problema atacado
+## Segurança e operação
 
-Os arquivos `payroll-02.pdf`, `payroll-03.pdf`, `payroll-04.pdf`, `time-card-02.pdf`, `time-card-03.pdf` e `time-card-04.pdf` expuseram dois limites reais do fluxo anterior:
+- Upload restrito a PDFs válidos de até 10 MiB.
+- Nenhum CPF, nome, salário, conteúdo de PDF, OCR ou nome original de arquivo aparece em logs.
+- Dados permanecem apenas na memória do processo.
+- A Vercel, quando usada, serve só como preview visual; fluxo funcional completo é avaliado via Docker Compose.
 
-- há PDFs escaneados sem camada de texto utilizável;
-- existem páginas com múltiplos demonstrativos impressos e digitalizados juntos;
-- há variação de layout, cor de fonte e organização visual;
-- `time-card-04.pdf` contém formulários manuscritos com ruído alto e baixa confiabilidade para OCR textual automático.
+## Principais correções e refatorações
 
-### Decisão técnica
+- O fluxo inicial de PDFs nativos foi corrigido para não achatar `getTextContent()` em uma única linha lógica.
+- O OCR deixou de ser acionado cedo demais e passou a funcionar como fallback mais estrito.
+- O parsing de holerite foi ampliado para múltiplos layouts e separação consistente entre verbas e bases.
+- O parsing de cartão passou a agrupar linhas do mesmo dia, ignorar colunas fixas e preservar dias sem batidas.
+- Casos de baixa confiabilidade passaram a encerrar em revisão manual terminal com possibilidade de preenchimento humano e exportação posterior.
 
-O pipeline foi reorientado para um fluxo determinístico local:
+## Amostras e comportamento esperado
 
-- toda página do PDF sempre produz:
-  - texto nativo reconstruído por coordenadas, quando existir;
-  - imagem renderizada da folha para fallback OCR;
-- o parser de holerite passou a aceitar múltiplos layouts e múltiplos demonstrativos por página;
-- o parser de cartão passou a agrupar dias repetidos e a ignorar colunas fixas de jornada;
-- documentos escaneados com pouca confiabilidade são encerrados com política explícita de revisão manual, sem crash.
-
-### Efeitos da correção
-
-- `payroll-01/02/03` e `time-card-01/02/03` podem ser consolidados automaticamente no fluxo principal;
-- `payroll-04` e `time-card-04` passam a encerrar em revisão manual terminal quando a leitura automática não é confiável;
-- holerites recebem `divergencia_calculo: true` quando `líquido != proventos - descontos`, sem falha terminal;
-- a interface não fica mais bloqueada nos casos terminais: a revisão cria um rascunho editável vazio e permite conclusão manual.
-
-## Correção aplicada no commit `79a9863`
-
-### Erro observado
-
-Os PDFs `payroll-01.pdf` e `time-card-01.pdf` tinham camada de texto nativa, mas o pipeline ainda produzia leitura degradada na interface:
-
-- apareciam ruídos e caracteres `?` desnecessários quando o OCR era acionado cedo demais;
-- o holerite perdia a separação correta entre verbas (`fields`) e bases/totais (`bases`);
-- o cartão de ponto não aglutinava corretamente linhas repetidas do mesmo dia e tratava mal dias com múltiplas linhas ou sem batidas.
-
-### Causa raiz
-
-O problema tinha duas causas combinadas:
-
-1. o extrator nativo achatava o retorno do `getTextContent()` com `join(" ")`, destruindo a estrutura visual do PDF e misturando colunas distintas na mesma linha lógica;
-2. o fallback para OCR considerava “texto utilizável” com um limiar muito baixo, o que permitia acionar Tesseract mesmo em páginas que já continham texto vetorial suficiente, introduzindo ruído desnecessário.
-
-Com isso, os parsers recebiam entrada textual sem preservação de linhas/colunas e não conseguiam distinguir de forma confiável:
-
-- verbas da tabela principal versus bases/totais do holerite;
-- cabeçalho de jornada versus batidas reais no cartão;
-- múltiplas linhas referentes ao mesmo dia.
-
-### Como foi corrigido
-
-- O extrator nativo passou a reconstruir linhas por coordenadas `x/y`, preservando a ordem visual dos itens.
-- O OCR foi rebaixado para fallback estrito, disparado apenas abaixo de 50 caracteres úteis por página.
-- O parser de holerite foi refeito para:
-  - dividir blocos por competência (`Mês: abr-17`, `jan-18` etc.);
-  - capturar verbas da tabela principal por regex orientada a código, referência e valor;
-  - extrair bases e totais obrigatórios sem deixá-los vazar para `fields`.
-- O parser de cartão de ponto foi refeito para:
-  - detectar `Mes/Ano` do cabeçalho;
-  - identificar linhas `DIA - SEMANA`;
-  - aglutinar linhas repetidas do mesmo dia;
-  - ignorar a coluna fixa de jornada e coletar apenas batidas reais;
-  - retornar `punches: []` em dias sem registros.
-
-O efeito esperado dessa correção é texto limpo, sem `?` introduzido artificialmente, com preenchimento consistente das tabelas de revisão e exportação.
-
-## Comportamento terminal de revisão manual
-
-Os casos `ILEGIVEL_PARA_REVISAO_MANUAL` deixaram de ser um beco sem saída.
-
-- O polling retorna o status terminal explicativo.
-- A tela de revisão abre mesmo sem valor estruturado persistido.
-- Para `cartao-ponto`, a UI agora permite:
-  - adicionar páginas;
-  - adicionar dias;
-  - adicionar/remover pares de batida;
-  - preencher manualmente `date_raw` e `time_hhmm`.
-- Para `holerite`, a UI agora permite:
-  - adicionar páginas;
-  - adicionar/remover verbas;
-  - adicionar/remover bases;
-  - preencher manualmente competência, códigos, descrições, referências e valores.
-- Após salvar uma revisão manual válida, o job é promovido para `concluido` e volta a ser exportável.
-
-## Fidelidade, revisão e exportação
-
-- A extração tenta preservar exatamente o observado; o sistema não inventa batidas, competências nem totais.
-- `date_raw` e `time_raw` preservam o valor observado quando houve leitura automática; na revisão manual, podem ser preenchidos pelo operador para viabilizar conclusão.
-- `time_hhmm` e campos válidos de holerite são editáveis, desde que validem o modelo.
-- Holerites exibem a referência original do demonstrativo e uma flag explícita de divergência de cálculo.
-- Warnings são derivados, não persistidos no JSON.
-- XLSX usa cabeçalho branco em `#173772`; amarelo `#FFF3CD`, vermelho `#F8D7DA` e borda `#DC3545`, com vermelho prioritário.
-
-## Segurança
-
-- Limite fixo de upload de 10 MiB (10.485.760 bytes).
-- Validação de PDF, rejeição de arquivos inválidos e mensagens seguras.
-- Nenhum nome, CPF, salário, conteúdo de PDF, OCR ou nome original de arquivo em logs.
-- Dados de processamento permanecem somente na memória do processo e não são persistidos.
-
-## Publicação
-
-A Vercel hospeda apenas uma prévia visual com fixtures seguros para avaliação da interface. Upload,
-OCR, estado de jobs, revisão real e exportação são avaliados exclusivamente via Docker Compose.
+- `payroll-01`, `payroll-02`, `payroll-03`: fechamento automático esperado.
+- `time-card-01`, `time-card-02`, `time-card-03`: fechamento automático esperado.
+- `payroll-04` e `time-card-04`: tendência a revisão manual terminal por baixa confiabilidade; isso é deliberado.
 
 ## Configuração e verificações
 
-`MAX_UPLOAD_BYTES` é fixado por padrão em 10.485.760, `JOB_RETENTION_HOURS` em 24,
-`OCR_TIMEOUT_MS` e `MAX_CONCURRENT_OCR_JOBS` controlam o processamento em fila. As variáveis
-`GEMINI_API_KEY`/`GEMINI_VISION_MODEL` foram mantidas apenas para um adapter experimental de Vision
-e não participam do fluxo principal desta solução.
+- `MAX_UPLOAD_BYTES`: `10_485_760`
+- `JOB_RETENTION_HOURS`: `24`
+- `OCR_TIMEOUT_MS`: configurável
+- `MAX_CONCURRENT_OCR_JOBS`: exposto em configuração, embora o runtime atual siga serializado em fila simples
 
-Foram executados `npm run typecheck` e a suíte focada
-`tests/integration/transcricoes.contract.test.ts`, `tests/unit/cartao-parser.test.ts`,
-`tests/unit/holerite-parser.test.ts` e `tests/unit/document-pipeline.test.ts`. Essa cobertura valida
-pipeline por página, parsers, política de revisão manual e promoção do job para `concluido` após
-salvamento humano. O Playwright continua configurado, porém sua execução depende da instalação da
-biblioteca de sistema `libnspr4.so` no ambiente.
+Validações executadas:
+
+- `npm run typecheck`
+- `npm test`
+- `npm run build`
+- `npm run test:e2e`
+
+A cobertura automatizada valida contrato HTTP, pipeline, parsers, política de revisão manual, exportação, saúde da aplicação e smoke test E2E da tela inicial.
 
 ## Limitações conhecidas
 
-- Estado e resultados em memória desaparecem em reinicializações.
-- OCR local em documentos manuscritos muito ruidosos continua insuficiente para automação plena.
-- `payroll-04` e `time-card-04` tendem a cair em revisão manual; isso é intencional e preferível a inventar dados.
-- A prévia Vercel não representa o fluxo funcional completo.
+- Estado e resultados somem em reinicializações.
+- OCR local continua insuficiente para manuscritos muito ruidosos.
+- A configuração de concorrência de OCR ainda não virou paralelismo real no runtime.
+- A suíte E2E atual é curta e cobre só o smoke test do fluxo inicial.
+
+## Desenvolvimento Agentic e Experimental
+
+O projeto foi conduzido utilizando o **Codex Agent** para auxílio na implementação, refatoração, suíte de testes e documentação técnica, estruturado em dois ciclos principais de execução.
+
+### Avaliação Comparativa dos Modelos
+
+| Modelo / Ciclo | Principais Fortalezas | Limitações & Gargalos |
+| :--- | :--- | :--- |
+| **1º Ciclo: GPT-5.6 Luna** | • Excelente na construção do workflow e especificações (`spec-kit`)<br>• Alto desempenho na estruturação e consolidação de documentos e testes | • Baixa confiabilidade para OCR e parsing nativo de PDFs<br>• Maior propensão a alucinação (invenção de dados) |
+| **2º Ciclo: GPT-5.4** | • Alta precisão na correção de bugs de parsing<br>• Preservação consistente de contratos HTTP em refatorações | • Menor velocidade de resposta/geração em comparação ao Luna |
+
+### Principais Aprendizados e Trade-offs
+
+1. **Construção vs. Parsing:** O modelo **GPT-5.6 Luna** destacou-se no setup inicial, arquitetura e documentação fluida, porém apresentou limitações com dados não estruturados (PDFs/OCR), exigindo validação humana contra dados inventados.
+2. **Determinismo e Estabilidade:** O **GPT-5.4** demonstrou ser mais determinístico e confiável para refatoração de código *core* e manutenção de contratos de API, compensando a menor velocidade com saídas mais resilientes e alinhadas ao escopo.
+
+## Retrospectiva do processo agentic
+
+### Acertos
+
+- Boa convergência para pipeline local determinístico.
+- Preservação do contrato HTTP durante as refatorações.
+- Uso de revisão manual terminal em vez de inventar dados.
+- Documentação suficiente para rastrear decisões e mudanças importantes.
+
+### Erros
+
+- A primeira estratégia de extração de texto nativo era estruturalmente inadequada.
+- O OCR inicial era permissivo demais para documentos já legíveis.
+- A configuração de concorrência de OCR ficou adiantada em relação ao runtime real.

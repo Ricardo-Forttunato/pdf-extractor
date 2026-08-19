@@ -31,10 +31,6 @@ Depois, verifique a disponibilidade em `http://localhost:3000/healthz` e abra
 Também é possível usar `npm run dev` para desenvolvimento. Execute `npm run typecheck`, `npm test`,
 `npm run lint` e `npm run build` antes de entregar uma alteração.
 
-O fluxo principal atual não depende de `GEMINI_API_KEY`. As variáveis `GEMINI_*` permanecem apenas
-por compatibilidade com um adapter experimental de Vision que não faz parte do caminho principal de
-processamento.
-
 ## Requisitos e limites
 
 - Apenas PDFs válidos, sem senha, com no máximo 10 MiB (10.485.760 bytes).
