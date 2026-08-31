@@ -4,7 +4,9 @@ import { loadPdf } from "@/infrastructure/pdf/pdfjs";
 import { classifyDocumentPage } from "@/lib/document-processing/document-classifier";
 import type { DocumentPageInput } from "@/lib/document-processing/document-page";
 
-export async function buildDocumentPages(bytes: Uint8Array): Promise<DocumentPageInput[]> {
+export async function buildDocumentPages(
+  bytes: Uint8Array,
+): Promise<DocumentPageInput[]> {
   const pdf = await loadPdf(bytes);
   const pages: DocumentPageInput[] = [];
 
@@ -16,10 +18,11 @@ export async function buildDocumentPages(bytes: Uint8Array): Promise<DocumentPag
       pageNumber: number,
       image,
       nativeText,
-      kind: classifyDocumentPage(nativeText)
+      kind: classifyDocumentPage(nativeText),
     });
   }
 
-  if (!pages.length) throw new Error("Não foi possível montar as páginas do documento.");
+  if (!pages.length)
+    throw new Error("Não foi possível montar as páginas do documento.");
   return pages;
 }

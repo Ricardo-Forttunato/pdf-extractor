@@ -1,6 +1,6 @@
 # Quick Filler
 
-O Quick Filler transforma cartões de ponto e holerites em PDF em dados estruturados para revisão humana. O fluxo cobre PDFs com texto nativo e PDFs escaneados/digitalizados: envio do arquivo, processamento por página, revisão lado a lado com o original, correção e download.
+Uma aplicação web que transforma cartões de ponto e holerites em PDF em dados estruturados para revisão humana. O fluxo cobre PDFs com texto nativo e PDFs escaneados/digitalizados: envio do arquivo, processamento por página, revisão lado a lado com o original, correção e download.
 
 > Estado atual: fluxo principal validado localmente com typecheck e testes focados de pipeline, parsers e contrato HTTP.
 

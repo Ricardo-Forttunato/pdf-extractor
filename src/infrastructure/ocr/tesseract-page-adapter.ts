@@ -8,10 +8,12 @@ function toLines(text: string) {
     .filter(Boolean);
 }
 
-export async function extractPageWithTesseract(image: Buffer): Promise<OcrPageResult> {
+export async function extractPageWithTesseract(
+  image: Buffer,
+): Promise<OcrPageResult> {
   const text = await recognizePage(image);
   return {
     text,
-    lines: toLines(text).map((line) => ({ text: line }))
+    lines: toLines(text).map((line) => ({ text: line })),
   };
 }
