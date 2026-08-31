@@ -1,3 +1,55 @@
-import { cartaoWarnings, holeriteWarnings, presentation } from "@/domain/warnings/derive-warnings";
-test("alertas detectam batida ímpar e vermelho prevalece", () => { const warnings = cartaoWarnings({ pages: [{ page: 1, days: [{ date_raw: "21/05/2020", punches: [{ kind: "IN", time_raw: "??:??", time_hhmm: "??:??" }] }, { date_raw: "20/05/2020", punches: [] }] }] }); expect(warnings[0]?.map((w) => w.code)).toContain("ODD_PUNCH_COUNT"); expect(presentation(warnings[1]!).fill).toBe("#F8D7DA"); });
-test("dezembro para janeiro é sequencial e marca divergência de cálculo", () => { const warnings = holeriteWarnings({ pages: [{ page: 1, month: "12", year: "2020", reference: "12/2020", divergence_calculo: false, fields: [], bases: [{ label: "Total", value: "1,00" }] }, { page: 2, month: "01", year: "2021", reference: "01/2021", divergence_calculo: true, fields: [], bases: [{ label: "Total", value: "1,00" }] }] }); expect(warnings[1]).not.toEqual(expect.arrayContaining([expect.objectContaining({ code: "NON_SEQUENTIAL_MONTH" })])); expect(warnings[1]?.map((warning) => warning.code)).toContain("PAYROLL_CALCULATION_DIVERGENCE"); });
+import {
+  cartaoWarnings,
+  holeriteWarnings,
+  presentation,
+} from "@/domain/warnings/derive-warnings";
+test("alertas detectam batida ímpar e vermelho prevalece", () => {
+  const warnings = cartaoWarnings({
+    pages: [
+      {
+        page: 1,
+        days: [
+          {
+            date_raw: "21/05/2020",
+            punches: [{ kind: "IN", time_raw: "??:??", time_hhmm: "??:??" }],
+          },
+          { date_raw: "20/05/2020", punches: [] },
+        ],
+      },
+    ],
+  });
+  expect(warnings[0]?.map((w) => w.code)).toContain("ODD_PUNCH_COUNT");
+  expect(presentation(warnings[1]!).fill).toBe("#F8D7DA");
+});
+test("dezembro para janeiro é sequencial e marca divergência de cálculo", () => {
+  const warnings = holeriteWarnings({
+    pages: [
+      {
+        page: 1,
+        month: "12",
+        year: "2020",
+        reference: "12/2020",
+        divergence_calculo: false,
+        fields: [],
+        bases: [{ label: "Total", value: "1,00" }],
+      },
+      {
+        page: 2,
+        month: "01",
+        year: "2021",
+        reference: "01/2021",
+        divergence_calculo: true,
+        fields: [],
+        bases: [{ label: "Total", value: "1,00" }],
+      },
+    ],
+  });
+  expect(warnings[1]).not.toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({ code: "NON_SEQUENTIAL_MONTH" }),
+    ]),
+  );
+  expect(warnings[1]?.map((warning) => warning.code)).toContain(
+    "PAYROLL_CALCULATION_DIVERGENCE",
+  );
+});
